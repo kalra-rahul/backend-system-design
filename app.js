@@ -1,17 +1,20 @@
-// app.js
+// /app.js
 const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
+const helmet = require('helmet');
+const dotenv = require('dotenv');
+const authRoutes = require('./routes/authRoutes');
+const patientRoutes = require('./routes/patientRoutes');
+const connectDB = require('./config/db');
 
-// Middleware (optional)
+dotenv.config();
+connectDB();
+
+const app = express();
+app.use(helmet());
 app.use(express.json());
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Server is running...');
-});
+app.use('/api/auth', authRoutes);
+app.use('/api/patients', patientRoutes);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
