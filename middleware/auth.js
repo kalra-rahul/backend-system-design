@@ -7,11 +7,21 @@ exports.verifyToken = (req, res, next) => {
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid token' });
     req.user = user;
-    next();
+    return next();
   });
 };
 
 exports.checkRole = (roles) => (req, res, next) => {
   if (!roles.includes(req.user.role)) return res.status(403).json({ message: 'Forbidden' });
+  next();
+};
+
+// Middleware: Emergency bypass checker
+exports.emergencyBypass = (req, res, next) => {
+  const bypassToken = req.headers['x-emergency-token'];
+  if (bypassToken && bypassToken === process.env.EMERGENCY_BYPASS) {
+    // Skip rate limiting for emergencies
+    return next();
+  }
   next();
 };
